@@ -1,185 +1,140 @@
 @extends('layouts.master')
-@section('title', 'Test Page')
+@section('title', 'Products')
 @section('content')
-<div class="row mt-2">
-    <div class="col col-10">
-        <h1>Products</h1>
-    </div>
-    <div class="col col-2">
-        @can('add_products')
-        <a href="{{route('products_edit')}}" class="btn btn-success form-control">Add Product</a>
-        @endcan
-    </div>
-</div>
+    
+    <div class="container">
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+    
+        <div class="row">
+            <div class="col col-10">
+                <h1>Products</h1>
+            </div>
+            @can("edit_products")
+            <div class="col col-2">
+                <a href="{{route('products_edit')}}" class="btn btn-success form-control">Add Product</a>
+            </div>
+            @endcan
+        </div>
 
-<!-- Display Success/Error Messages -->
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-@if($errors->any())
-    <div class="alert alert-danger">
-        {{ $errors->first() }}
-    </div>
-@endif
 
-<form>
-    <div class="row">
-        <div class="col col-sm-2">
-            <input name="keywords" type="text" class="form-control" placeholder="Search Keywords" value="{{ request()->keywords }}" />
-        </div>
-        <div class="col col-sm-2">
-            <input name="min_price" type="numeric" class="form-control" placeholder="Min Price" value="{{ request()->min_price }}"/>
-        </div>
-        <div class="col col-sm-2">
-            <input name="max_price" type="numeric" class="form-control" placeholder="Max Price" value="{{ request()->max_price }}"/>
-        </div>
-        <div class="col col-sm-2">
-            <select name="order_by" class="form-select">
-                <option value="" {{ request()->order_by==""?"selected":"" }} disabled>Order By</option>
-                <option value="name" {{ request()->order_by=="name"?"selected":"" }}>Name</option>
-                <option value="price" {{ request()->order_by=="price"?"selected":"" }}>Price</option>
-            </select>
-        </div>
-        <div class="col col-sm-2">
-            <select name="order_direction" class="form-select">
-                <option value="" {{ request()->order_direction==""?"selected":"" }} disabled>Order Direction</option>
-                <option value="ASC" {{ request()->order_direction=="ASC"?"selected":"" }}>ASC</option>
-                <option value="DESC" {{ request()->order_direction=="DESC"?"selected":"" }}>DESC</option>
-            </select>
-        </div>
-        <div class="col col-sm-1">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-        <div class="col col-sm-1">
-            <button type="reset" class="btn btn-danger">Reset</button>
-        </div>
-    </div>
-</form>
-@if(!empty(request()->keywords))
-    <div class="card mt-2">
-        <div class="card-body">
-            view search results: <span>{!! request()->keywords !!}</span>
-        </div>
-    </div>
-@endif
+        <div class="card">
+            <div class="card-body">
 
-@foreach($products as $product)
-    <div class="card mt-2">
-        <div class="card-body">
-            <div class="row">
-                <div class="col col-sm-12 col-lg-4">
-                    <!-- Handle nullable photo field -->
-                    @if($product->photo)
-                        <img src="{{ asset("images/$product->photo") }}" class="img-thumbnail" alt="{{ $product->name }}" width="100%">
-                    @else
-                        <img src="{{ asset('images/placeholder.jpg') }}" class="img-thumbnail" alt="{{ $product->name }}" width="100%">
-                    @endif
-                </div>
-                <div class="col col-sm-12 col-lg-8 mt-3">
-                    <div class="row mb-2">
-                        <div class="col-8">
-                            <h3>{{ $product->name }}</h3>
-                        </div>
-                        <div class="col col-2">
-                            @can('edit_products')
-                            <a href="{{ route('products_edit', $product->id) }}" class="btn btn-success form-control">Edit</a>
-                            @endcan
-                        </div>
-                        <div class="col col-2">
-                            @can('delete_products')
-                            <form action="{{ route('products_delete', $product->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger form-control" onclick="return confirm('Are you sure you want to delete this product?')">Delete</button>
-                            </form>
-                            @endcan
-                        </div>
-                    </div>
-
-                    <table class="table table-striped">
-                        <tr><th width="20%">Name</th><td>{{ $product->name }}</td></tr>
-                        <tr><th>Model</th><td>{{ $product->model }}</td></tr>
-                        <tr><th>Code</th><td>{{ $product->code }}</td></tr>
-                        <tr><th>Price</th><td>{{ $product->price }}</td></tr>
-                        <tr><th>Stock</th><td>{{ $product->stock }}</td></tr>
-                        <tr><th>Description</th><td>{{ $product->description ?? 'No description available' }}</td></tr>
-                    </table>
-
-                    @if(auth()->check() && auth()->user()->hasRole('Customer'))
+                <form>
                     <div class="row">
-                        <div class="col col-3">
-                            <form action="{{ route('products_buy', $product) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary form-control">Buy</button>
-                            </form>
+                        <div class="col col-sm-2">
+                            <input name="keywords" type="text"  class="form-control" placeholder="Search Keywords" value="{{ request()->keywords }}" />
+                        </div>
+                        <div class="col col-sm-2">
+                            <input name="min_price" type="numeric"  class="form-control" placeholder="Min Price" value="{{ request()->min_price }}"/>
+                        </div>
+                        <div class="col col-sm-2">
+                            <input name="max_price" type="numeric"  class="form-control" placeholder="Max Price" value="{{ request()->max_price }}"/>
+                        </div>
+                        <div class="col col-sm-2">
+                            <select name="order_by" class="form-select">
+                                <option value="" {{ request()->order_by==""?"selected":"" }} disabled>Order By</option>
+                                <option value="name" {{ request()->order_by=="name"?"selected":"" }}>Name</option>
+                                <option value="price" {{ request()->order_by=="price"?"selected":"" }}>Price</option>
+                            </select>
+                        </div>
+                        <div class="col col-sm-2">
+                            <select name="order_direction" class="form-select">
+                                <option value="" {{ request()->order_direction==""?"selected":"" }} disabled>Order Direction</option>
+                                <option value="ASC" {{ request()->order_direction=="ASC"?"selected":"" }}>ASC</option>
+                                <option value="DESC" {{ request()->order_direction=="DESC"?"selected":"" }}>DESC</option>
+                            </select>
+                        </div>
+                        <div class="col col-sm-1">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                        <div class="col col-sm-1">
+                            <button type="reset" class="btn btn-danger">Reset</button>
                         </div>
                     </div>
-                    @endif
-
-                    @if($product->review)
-                        <div class="mt-3">
-                            <h6>Review:</h6>
-                            <p class="text-muted">{{ $product->review }}</p>
-                            @if($product->reviewed_at)
-                                <small class="text-muted">Reviewed on: {{ \Carbon\Carbon::parse($product->reviewed_at)->format('M d, Y') }}</small>
-                            @endif
-                        </div>
-                    @endif
-
-                    @auth
-                        @if(auth()->user()->hasRole('Customer'))
-                            @if(!$product->review)
-                                <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $product->id }}">
-                                    Write Review
-                                </button>
-                            @endif
-                        @endif
-                    @endauth
-                </div>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Review Modal -->
-    @auth
-        @if(auth()->user()->hasRole('Customer'))
-            @if(!$product->review)
-                <div class="modal fade" id="reviewModal{{ $product->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $product->id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="reviewModalLabel{{ $product->id }}">Review {{ $product->name }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+
+        <div class="row row-cols-3 g-y-2">
+            @foreach ($products as $product)
+            <div class="col">
+                <div class="card">
+                    <div class="card-img-top"><img src="{{$product->photo}}" alt="{{$product->name}}" class="img-thumbnail"></div>
+                    <div class="card-body">
+                        <h3>{{$product->name}}</h3>
+                        
+                        <div class="row mb-2">
+                            @can("edit_products")
+                            <div class="col">
+                                <a href="{{route('products_edit', $product->id)}}" class="btn btn-success form-control">Edit</a>
                             </div>
-                            <form action="{{ route('products_review', $product) }}" method="POST">
-                                @csrf
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="review" class="form-label">Your Review</label>
-                                        <textarea class="form-control" id="review" name="review" rows="4" required></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Submit Review</button>
-                                </div>
-                            </form>
+                            @endcan
+
+                            @can("delete_products")
+                            <div class="col">
+                                <a href="{{route('products_delete', $product->id)}}" class="btn btn-danger form-control">Delete</a>
+                            </div>
+                            @endcan
+
+                            @can("purchase_products")
+                            <div class="col">
+                                <form action="{{ route('products_purchase', $product->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary form-control">Purchase</button>
+                                </form>
+                            </div>
+                            @endcan
                         </div>
+                        
+                        
+                        <table class="table table-striped">
+                            <tr>
+                                <td>Name</td>
+                                <td>{{$product->name}}</td>
+                            </tr>
+                            <tr>
+                                <td>Model</td>
+                                <td>{{$product->model}}</td>
+                            </tr>
+                            <tr>
+                                <td>Code</td>
+                                <td>{{$product->code}}</td>
+                            </tr>
+                            <tr>
+                                <td>Price</td>
+                                <td style="color:rgb(41, 219, 41); font-weight:bold;">{{$product->price}}</td>
+                            </tr>
+                            <tr>
+                                <td>Stock</td>
+                                <td>{{$product->stock}}</td>
+                            </tr>
+                            <tr>
+                                <td>Description</td>
+                                <td>{{$product->description}}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-            @endif
-        @endif
-    @endauth
-@endforeach
+            </div>
 
-<!-- Add a link to view purchased products -->
-@if(auth()->check() && auth()->user()->hasRole('Customer'))
-<div class="row mt-3">
-    <div class="col">
-        <a href="{{ route('products_purchased') }}" class="btn btn-info">View Purchased Products</a>
+                @endforeach
+            </div>
+            
+    
+        
     </div>
-</div>
-@endif
+
 @endsection

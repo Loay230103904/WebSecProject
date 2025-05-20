@@ -1,42 +1,11 @@
 <?php
 
-namespace App\Models;
+    namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
-{
-    use HasFactory;
+    class Product extends Model {
+        protected $table = "products";
+        protected $fillable = ['name', 'model', 'code', 'price', 'description', 'photo', 'stock'];
 
-    protected $fillable = [
-        'code',
-        'name',
-        'model',
-        'description',
-        'price',
-        'stock',
-        'photo',
-        'review',
-        'reviewed_by',
-        'reviewed_at'
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-        'stock' => 'integer',
-        'reviewed_at' => 'datetime'
-    ];
-
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
     }
-
-    public function purchases()
-    {
-        return $this->belongsToMany(User::class, 'purchases')
-            ->withPivot('quantity', 'created_at')
-            ->withTimestamps();
-    }
-} 
