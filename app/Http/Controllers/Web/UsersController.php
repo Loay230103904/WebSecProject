@@ -68,31 +68,45 @@ class UsersController extends Controller {
         return view('users.register');
     }
 
-    public function doRegister(Request $request) {
+       public function doRegister(Request $request) {
 
-        $this->validate($request, [
-            'name' => ['required', 'string', 'min:4'],
-            'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required', 'confirmed',
-                Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
+    	try {
+    		$this->validate($request, [
+	        'name' => ['required', 'string', 'min:5'],
+	        'email' => ['required', 'email', 'unique:users'],
+	        'password' => ['required', 'confirmed', Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
             'address' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'], // You can adjust max length as needed
-        ]);
+            'phone' => ['required', 'string', 'max:20'], 
+	    	]);
+    	}
+    	catch(\Exception $e) {
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password); // Secure
+    		return redirect()->back()->withInput($request->input())->withErrors('Invalid registration information.');
+    	}
+
+    	
+    	$user =  new User();
+	    $user->name = $request->name;
+	    $user->email = $request->email;
+	    $user->password = bcrypt($request->password); //Secure
         $user->address = $request->address;
         $user->phone = $request->phone;
-
-        // Assign "customer" role
         $user->assignRole('customer');
 
-        $user->save();
+	    $user->save();
 
-        return redirect("/");
-    }
+        // Send verification email
+        $token = Crypt::encryptString(json_encode([
+        'id' => $user->id,
+        'email' => $user->email,
+    ]));
+
+    $link = route('verify', ['token' => $token]);
+
+    Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
+
+    return redirect()->route('login')->with('message', 'Please check your email to verify your account.');
+}
 
     
     
@@ -107,9 +121,36 @@ class UsersController extends Controller {
             return redirect()->back()->withInput($request->input())->withErrors('Invalid login information.');
 
         $user = User::where('email', $request->email)->first();
+
+        // ❗️Check if email is verified
+        if (!$user->email_verified_at) {
+        Auth::logout(); // تأمين زيادة علشان ميكملش السيشن
+        return redirect()->back()->withInput($request->input())->withErrors('Your email is not verified Check Your inbox.');
+    }
+
         Auth::setUser($user);
+         if (Hash::check($request->password, $user->password)) {
+            if (Str::length($request->password) === 5) {
+                // Assuming temp passwords are always 5 chars
+                session(['force_password_change' => true]);
+                return redirect()->route('edit_password');
+            }}
         return redirect("/");
         }
+
+
+         public function verify(Request $request)
+{
+    $decryptedData = json_decode(Crypt::decryptString($request->token), true);
+    $user = User::find($decryptedData['id']);
+
+    if (!$user) abort(401);
+
+    $user->email_verified_at = Carbon::now();
+    $user->save();
+
+    return view('users.verified', compact('user'));
+}
 
     public function doLogout(Request $request) {
 
@@ -118,6 +159,40 @@ class UsersController extends Controller {
         }
 
 
+        
+    public function forgotPasswordForm()
+{
+    return view('users.forgot_password');
+}
+
+
+
+
+public function sendTemporaryPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return back()->withErrors('Email not found.');
+    }
+
+    // Generate temp password
+    $tempPassword = Str::random(5);
+    $user->password = bcrypt($tempPassword);
+    $user->save();
+
+
+    Mail::to($user->email)->send(new TemporaryPasswordEmail($user->name, $tempPassword));
+
+
+    return redirect()->route('login')->with('message', 'Temporary password sent to your email.');
+}
+
+// _______________________________________________________________________________
         public function profile(Request $request, User $user = null) {
             $user = $user??auth()->user();
             if(auth()->id()!=$user?->id) {
