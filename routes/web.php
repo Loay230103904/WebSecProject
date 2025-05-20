@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\UsersController;
+use App\Http\Controllers\Web\ProductsController;
+use App\Http\Controllers\SocialController;
+use Illuminate\Http\Request;
+
 
 Route::get('/', function () {
     return view('welcome'); //welcome.blade.php
@@ -8,7 +13,6 @@ Route::get('/', function () {
 
 
 
-use App\Http\Controllers\Web\ProductsController;
 
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
 Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
@@ -19,7 +23,6 @@ Route::get('/bought-products', [ProductsController::class, 'boughtProducts'])->n
 
 
 
-use App\Http\Controllers\Web\UsersController;
 
 Route::get('register', [UsersController::class, 'register'])->name('register');
 Route::post('register', [UsersController::class, 'doRegister'])->name('do_register');
@@ -44,3 +47,15 @@ Route::post('bought-products/{id}/refused', [ProductsController::class, 'markRef
 
 Route::get('/stock-operations', [ProductsController::class, 'stockOperations'])->name('stock_operations');
 Route::post('/products/{id}/increase-stock', [ProductsController::class, 'increaseStock'])->name('increase_stock');
+
+
+Route::get('verify', [UsersController::class, 'verify'])->name('verify');
+
+//password reset
+
+Route::get('/forgot-password', [UsersController::class, 'forgotPasswordForm'])->name('forgot_password');
+Route::post('/forgot-password', [UsersController::class, 'sendTemporaryPassword'])->name('forgot_password.submit');
+
+
+Route::get('/auth/redirect/{provider}', [SocialController::class, 'redirect'])->name('auth.redirect');
+Route::get('/auth/callback/{provider}', [SocialController::class, 'callback'])->name('auth.callback');
