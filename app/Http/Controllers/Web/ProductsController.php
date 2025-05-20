@@ -177,6 +177,33 @@
 
 
 
+        public function stockOperations() {
+
+            if (!auth()->user()->hasPermissionTo('stock_operations')) {
+                abort(401);
+            }
+
+            $lowStockProducts = Product::where('stock', '<=', 5)->get();
+            return view('products.stock_operations', compact('lowStockProducts'));
+
+
+        }
+
+        public function increaseStock(Request $request, $id) {
+
+            if (!auth()->user()->hasPermissionTo('stock_operations')) {
+                abort(401);
+            }
+            $request->validate([
+                'stock' => 'required|integer|min:1',
+            ]);
+            $product = Product::findOrFail($id);
+            $product->stock += $request->stock;
+            $product->save();
+
+            return redirect()->route('stock_operations')->with('success', 'Stock increased successfully.');
+
+        }
 
 
 

@@ -12,6 +12,7 @@
                     <div class="alert alert-danger">
                         <strong>Error!</strong> {{ $error }}
                     </div>
+                    @break
                 @endforeach
 
                 <div class="mb-3">

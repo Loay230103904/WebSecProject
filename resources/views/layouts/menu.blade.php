@@ -20,6 +20,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('brought_products') }}">Bought Products</a>
             </li>
+            @can('stock_operations')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('stock_operations') }}">Stock Operations</a>
+            </li>
+            @endcan
 
 
 

@@ -41,3 +41,6 @@ Route::post('bought-products/{id}/delivered', [ProductsController::class, 'markD
 Route::post('bought-products/{id}/refused', [ProductsController::class, 'markRefused'])->name('product_refused');
 
 
+
+Route::get('/stock-operations', [ProductsController::class, 'stockOperations'])->name('stock_operations');
+Route::post('/products/{id}/increase-stock', [ProductsController::class, 'increaseStock'])->name('increase_stock');
