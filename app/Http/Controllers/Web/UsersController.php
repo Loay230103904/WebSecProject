@@ -2,26 +2,19 @@
 
 namespace App\Http\Controllers\Web;
 
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Http\Controllers\Controller; 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use DB;
 use Artisan;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
 
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\VerificationEmail;
-use App\Mail\TemporaryPasswordEmail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
-
-use Illuminate\Support\Str;
 
 
 class UsersController extends Controller {
@@ -197,45 +190,7 @@ public function sendTemporaryPassword(Request $request)
 
 
     return redirect()->route('login')->with('message', 'Temporary password sent to your email.');
-
-
 }
-
-
- public function editPassword(Request $request, User $user = null) {
-
-        $user = $user??auth()->user();
-        if(auth()->id()!=$user?->id) {
-            if(!auth()->user()->hasPermissionTo('edit_users')) abort(401);
-        }
-
-        return view('users.edit_password', compact('user'));
-    }
-
-    public function savePassword(Request $request, User $user) {
-
-        if(auth()->id()==$user?->id) {
-            
-            $this->validate($request, [
-                'password' => ['required', 'confirmed', Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
-            ]);
-
-            if(!Auth::attempt(['email' => $user->email, 'password' => $request->old_password])) {
-                
-                Auth::logout();
-                return redirect('/');
-            }
-        }
-        else if(!auth()->user()->hasPermissionTo('edit_users')) {
-
-            abort(401);
-        }
-
-        $user->password = bcrypt($request->password); //Secure
-        $user->save();
-
-        return redirect(route('profile', ['user'=>$user->id]));
-    }
 
 // _______________________________________________________________________________
         public function profile(Request $request, User $user = null) {
