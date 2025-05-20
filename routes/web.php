@@ -36,6 +36,8 @@ Route::get('users/edit/{user?}', [UsersController::class, 'edit'])->name('users_
 Route::post('users/save/{user}', [UsersController::class, 'save'])->name('users_save');
 Route::get('users', [UsersController::class, 'index'])->name('users_index');
 Route::get('/users/reset/{user}', [UsersController::class, 'reset'])->name('users_reset');
+Route::get('users/edit_password/{user?}', [UsersController::class, 'editPassword'])->name('edit_password');
+Route::post('users/save_password/{user}', [UsersController::class, 'savePassword'])->name('save_password');
 
 
 
