@@ -87,6 +87,7 @@ class UsersController extends Controller {
 	    	]);
     	}
     	catch(\Exception $e) {
+
     		return redirect()->back()->withInput($request->input())->withErrors('Invalid registration information.');
     	}
 
@@ -102,26 +103,17 @@ class UsersController extends Controller {
 	    $user->save();
 
         // Send verification email
-        try {
-            $token = Crypt::encryptString(json_encode([
-                'id' => $user->id,
-                'email' => $user->email,
-            ]));
+        $token = Crypt::encryptString(json_encode([
+        'id' => $user->id,
+        'email' => $user->email,
+    ]));
 
-            $link = route('verify', ['token' => $token]);
-            
-            \Log::info('Sending verification email to: ' . $user->email);
-            \Log::info('Verification link: ' . $link);
-            
-            Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
-            \Log::info('Verification email sent successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to send verification email: ' . $e->getMessage());
-            return redirect()->back()->withInput($request->input())->withErrors('Failed to send verification email. Please try again.');
-        }
+    $link = route('verify', ['token' => $token]);
 
-        return redirect()->route('login')->with('message', 'Please check your email to verify your account.');
-    }
+    Mail::to($user->email)->send(new VerificationEmail($link, $user->name));
+
+    return redirect()->route('login')->with('message', 'Please check your email to verify your account.');
+}
 
     
     
