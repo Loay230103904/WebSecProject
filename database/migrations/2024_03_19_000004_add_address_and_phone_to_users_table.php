@@ -9,14 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->decimal('account_credit', 10, 2)->default(0);
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('account_credit');
+            $table->dropColumn(['address', 'phone']);
         });
     }
 }; 
