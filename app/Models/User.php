@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements MustVerifyEmail
+
+class User extends Authenticatable
 {
     use HasApiTokens, HasRoles;
 
@@ -27,9 +28,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'social_id',   // إضافة social_id
         'social_type', // إضافة social_type
-        'address',
-        'phone',
-        'account_credit'
     ];
 
     /**
@@ -56,12 +54,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function purchases()
-    {
-        return $this->hasMany(Purchase::class);
-    }
+{
+    return $this->hasMany(Purchase::class);
+}
 
-    public function hasPurchased($productId)
-    {
-        return $this->purchases()->where('product_id', $productId)->exists();
-    }
+public function hasPurchased($productId)
+{
+    return $this->purchases()->where('product_id', $productId)->exists();
+}
+
+
 }
