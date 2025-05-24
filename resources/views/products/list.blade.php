@@ -25,13 +25,7 @@
             </div>
             @endcan
         </div>
-        @if(!empty(request()->keywords))
-            <div class="card mt-2">
-                <div class="card-body">
-                    view search results: <span>{!! request()->keywords !!}</span>
-                </div>
-            </div>
-        @endif
+
 
         <div class="card">
             <div class="card-body">
