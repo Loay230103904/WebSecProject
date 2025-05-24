@@ -5,7 +5,7 @@ use App\Http\Controllers\Web\UsersController;
 use App\Http\Controllers\Web\ProductsController;
 use App\Http\Controllers\SocialController;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome'); //welcome.blade.php
@@ -61,3 +61,27 @@ Route::post('/forgot-password', [UsersController::class, 'sendTemporaryPassword'
 
 Route::get('/auth/redirect/{provider}', [SocialController::class, 'redirect'])->name('auth.redirect');
 Route::get('/auth/callback/{provider}', [SocialController::class, 'callback'])->name('auth.callback');
+
+Route::get("/sqli", function(Request $request){
+    $table = $request->query(('table'));
+    DB::unprepared("Drop Table $table");
+    return redirect("/");
+});
+
+
+Route::get("/sqli", function(Request $request){
+    $table = $request->query('keywords');
+    DB::unprepared("Drop Table $table");
+    return redirect("/");
+});
+
+Route::get('/cllect', function (Request $request) {
+    $name = $request->query('name');
+    $credits = $request->query('credits');
+
+    return response(['data cllected'], 200)
+        ->headers('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
+});
