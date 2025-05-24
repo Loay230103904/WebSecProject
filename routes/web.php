@@ -5,7 +5,6 @@ use App\Http\Controllers\Web\UsersController;
 use App\Http\Controllers\Web\ProductsController;
 use App\Http\Controllers\SocialController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome'); //welcome.blade.php
